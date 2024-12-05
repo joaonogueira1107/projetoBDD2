@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Contas Bancárias</title>
+  <link rel="stylesheet" href="/stylesheets/contaBancaria.css">
+</head>
+<body>
+  <header>
+    <h1>Lista de Contas Bancárias</h1>
+  </header>
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Conta</th>
+          <th>Banco</th>
+          <th>Agência</th>
+          <th>Conta</th>
+          <th>Tipo</th>
+          <th>Saldo Atual</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% contas.forEach(conta => { %>
+          <tr>
+            <td><%= conta.ID_Conta %></td>
+            <td><%= conta.banco %></td>
+            <td><%= conta.agencia %></td>
+            <td><%= conta.conta %></td>
+            <td><%= conta.tipo_conta %></td>
+            <td><%= conta.saldo_atual %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </main>
+  <footer>
+    <p>© 2024 Banco Fortis. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>

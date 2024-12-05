@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transação entre Usuários</title>
+  <link rel="stylesheet" href="/stylesheets/usuarios.css">
+</head>
+<body>
+  <header>
+    <h1>Transação de Saldo</h1>
+  </header>
+  <main>
+    <h2>Realizar Transação</h2>
+
+    <form action="/transacao/realizar" method="POST">
+      <div>
+        <label for="usuarioOrigem">Usuário de Origem:</label>
+        <select name="usuarioOrigem" id="usuarioOrigem" required>
+          <% usuarios.forEach(usuario => { %>
+            <option value="<%= usuario.ID_Usuario %>">
+              <%= usuario.nome %> - <%= usuario.email %>
+            </option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div>
+        <label for="usuarioDestino">Usuário de Destino:</label>
+        <select name="usuarioDestino" id="usuarioDestino" required>
+          <% usuarios.forEach(usuario => { %>
+            <option value="<%= usuario.ID_Usuario %>">
+              <%= usuario.nome %> - <%= usuario.email %>
+            </option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div>
+        <label for="valor">Valor da Transferência:</label>
+        <input type="number" name="valor" id="valor" required step="0.01">
+      </div>
+
+      <button type="submit">Realizar Transação</button>
+    </form>
+  </main>
+  <footer>
+    <p>© 2024 Banco Fortis. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório Financeiro</title>
+  <link rel="stylesheet" href="/stylesheets/relatorioFinanceiro.css">
+</head>
+<body>
+  <header>
+    <h1>Relatório Financeiro</h1>
+  </header>
+  <main>
+    <section>
+      <h3>Resumo Financeiro de <%= usuario.nome %></h3>
+      <ul>
+        <li><strong>Total de Saldo:</strong> R$ <%= totalSaldo.toFixed(2) %></li>
+        <li><strong>Total de Transações:</strong> <%= totalTransacoes %></li>
+        <li><strong>Total de Depósitos:</strong> R$ <%= totalDepositos.toFixed(2) %></li>
+        <li><strong>Total de Gastos:</strong> R$ <%= totalGastos.toFixed(2) %></li>
+      </ul>
+    </section>
+    <section>
+      <h2>Detalhes das Transações</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Descrição</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transacoes.forEach(transacao => { %>
+            <tr>
+              <td><%= transacao.data %></td>
+              <td><%= transacao.descricao %></td>
+              <td><%= transacao.tipo %></td>
+              <td>R$ <%= transacao.valor.toFixed(2) %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer>
+    <p>© 2024 Banco Fortis. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>
+
+

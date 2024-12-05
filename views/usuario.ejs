@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Usuários</title>
+  <link rel="stylesheet" href="/stylesheets/usuarios.css">
+  <script src="/javascripts/usuarios.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Lista de Usuários</h1>
+  </header>
+  <main>
+    <h2>Usuários</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Telefone</th>
+          <th>Data de Nascimento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (usuarios && usuarios.length > 0) { %>
+          <% usuarios.forEach(usuario => { %>
+            <tr>
+              <td><%= usuario.ID_Usuario %></td>
+              <td><%= usuario.nome %></td>
+              <td><%= usuario.email %></td>
+              <td><%= usuario.telefone %></td>
+              <td><%= usuario.data_nascimento %></td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="5">Nenhum usuário encontrado</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+    
+
+    <h2>Contas Bancárias</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Conta</th>
+          <th>ID Usuário</th>
+          <th>Banco</th>
+          <th>Agência</th>
+          <th>Conta</th>
+          <th>Tipo</th>
+          <th>Saldo Atual</th>
+          <th>Adicionar Saldo</th> <!-- Coluna para o formulário -->
+        </tr>
+      </thead>
+      <tbody>
+        <% contas.forEach(conta => { %>
+          <tr>
+            <td><%= conta.ID_Conta %></td>
+            <td><%= conta.ID_Usuario %></td>
+            <td><%= conta.banco %></td>
+            <td><%= conta.agencia %></td>
+            <td><%= conta.conta %></td>
+            <td><%= conta.tipo_conta %></td>
+            <td><%= parseFloat(conta.saldo_atual).toFixed(2) %></td> <!-- Garantir que o saldo seja um número e com 2 casas decimais -->
+            <td>
+              <form action="/transacao" method="POST" enctype="application/x-www-form-urlencoded">
+                <input type="hidden" name="usuarioId" value="<%= conta.ID_Usuario %>">
+                <input type="hidden" name="contaId" value="<%= conta.ID_Conta %>">
+                <input type="number" name="valor" placeholder="Valor a adicionar" required step="0.01">
+                <button type="submit">Adicionar Saldo</button>
+            </form>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    <!-- Link para a página de transação -->
+<a href="/transacao">Realizar Transferência</a>  
+    </table>
+  </main>
+  <footer>
+    <p>© 2024 Banco Fortis. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>

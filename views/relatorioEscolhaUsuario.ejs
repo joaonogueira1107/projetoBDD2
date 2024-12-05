@@ -1,0 +1,9 @@
+<!-- relatorioEscolhaUsuario.ejs -->
+<h1>Escolha um Usuário para Visualizar o Relatório</h1>
+<ul>
+  <% usuarios.forEach(usuario => { %>
+    <li>
+      <a href="/relatorio/<%= usuario.ID_Usuario %>"><%= usuario.nome %></a>
+    </li>
+  <% }); %>
+</ul>

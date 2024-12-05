@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selecionar Usuário - Relatório Financeiro</title>
+</head>
+<body>
+  <header>
+    <h1>Selecione um Usuário para Ver o Relatório Financeiro</h1>
+  </header>
+  <main>
+    <form action="/relatorio/usuario" method="GET">
+      <label for="usuarioId">Escolha um usuário:</label>
+      <select name="usuarioId" id="usuarioId" required>
+        <% usuarios.forEach(usuario => { %>
+          <option value="<%= usuario.ID_Usuario %>"><%= usuario.nome %> - <%= usuario.email %></option>
+        <% }); %>
+      </select>
+      <button type="submit">Ver Relatório</button>
+    </form>
+  </main>
+  <footer>
+    <p>© 2024 Banco Fortis. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>

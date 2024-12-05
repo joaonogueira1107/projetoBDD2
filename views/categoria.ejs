@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Categorias de Transações</title>
+  <link rel="stylesheet" href="/stylesheets/categoriaTransacoes.css">
+</head>
+<body>
+  <header>
+    <h1>Categorias de Transações Financeiras</h1>
+  </header>
+  <main>
+    <section>
+      <h2>Lista de Categorias</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID Categoria</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% categorias.forEach(categoria => { %>
+            <tr>
+              <td><%= categoria.ID_Categoria %></td>
+              <td><%= categoria.nome %></td>
+              <td><%= categoria.descricao %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Adicionar Nova Categoria</h2>
+      <form action="/categoria/adicionar" method="POST">
+        <label for="nome">Nome da Categoria:</label>
+        <input type="text" id="nome" name="nome" required>
+
+        <label for="descricao">Descrição:</label>
+        <input type="text" id="descricao" name="descricao">
+
+        <button type="submit">Adicionar Categoria</button>
+      </form>
+    </section>
+  </main>
+  <footer>
+    <p>© 2024 Banco Fortis. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>

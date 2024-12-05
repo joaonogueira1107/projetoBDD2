@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histórico de Transações</title>
+  <link rel="stylesheet" href="/stylesheets/usuarios.css">
+  <script src="/javascripts/usuarios.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Histórico de Transações</h1>
+  </header>
+  <main>
+    <h2>Transações</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Transação</th>
+          <th>Tipo</th>
+          <th>Valor</th>
+          <th>Descrição</th>
+          <th>Forma de Pagamento</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (transacoes && transacoes.length > 0) { %>
+          <% transacoes.forEach(transacao => { %>
+            <tr>
+              <td><%= transacao.ID_Transacao %></td>
+              <td><%= transacao.tipo %></td>
+              <td><%= transacao.valor %></td>
+              <td><%= transacao.descricao || 'N/A' %></td>
+              <td><%= transacao.forma_pagamento %></td>
+              <td><%= new Date(transacao.data_transacao).toLocaleDateString() %></td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="6">Nenhuma transação encontrada.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </main>
+  <footer>
+    <p>© 2024 Banco Fortis. Todos os direitos reservados.</p>
+  </footer>
+</body>
+</html>
