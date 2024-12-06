@@ -34,7 +34,7 @@
         <tbody>
           <% transacoes.forEach(transacao => { %>
             <tr>
-              <td><%= transacao.data %></td>
+              <td><%= new Date(transacao.data).toLocaleDateString() %></td>
               <td><%= transacao.descricao %></td>
               <td><%= transacao.tipo %></td>
               <td>R$ <%= transacao.valor.toFixed(2) %></td>
@@ -49,5 +49,3 @@
   </footer>
 </body>
 </html>
-
-

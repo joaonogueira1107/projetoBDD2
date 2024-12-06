@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "root",
-    "password": "admin",
-    "database": "gestaofinanceira",
+    "password": "aluno123",
+    "database": "projetobdd",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },

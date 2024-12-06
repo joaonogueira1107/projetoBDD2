@@ -57,12 +57,86 @@ app.get('/transacao', async (req, res) => {
   } 
 });
 
+const realizarTransacao = async (usuarioOrigem, usuarioDestino, valorTransacao, tipoTransacao, formaPagamento) => {
+  const MAX_RETRIES = 5; // Número máximo de tentativas
+  const RETRY_DELAY = 1000; // Atraso de 1 segundo entre tentativas
+  let retries = 0;
+
+  while (retries < MAX_RETRIES) {
+    try {
+      // Iniciar a transação no Sequelize
+      await sequelize.transaction(async (t) => {
+        // Garantir que a ordem de bloqueio das contas seja consistente
+        const [contaOrigem, contaDestino] = await Promise.all([
+          ContaBancaria.findOne({ where: { ID_Usuario: usuarioOrigem }, transaction: t }),
+          ContaBancaria.findOne({ where: { ID_Usuario: usuarioDestino }, transaction: t }),
+        ]);
+
+        if (!contaOrigem || !contaDestino) {
+          throw new Error('Conta de origem ou destino não encontrada');
+        }
+
+        // Verificar saldo suficiente na conta de origem para a transação
+        const saldoOrigem = parseFloat(contaOrigem.saldo_atual);
+        if (tipoTransacao === 'gasto' && saldoOrigem < valorTransacao) {
+          throw new Error('Saldo insuficiente para realizar o gasto');
+        }
+
+        // Garantir a ordem de atualização das contas para evitar deadlock
+        const contas = [contaOrigem, contaDestino].sort((a, b) => a.ID_Conta - b.ID_Conta);
+        
+        // Atualizar a conta de origem
+        await ContaBancaria.update(
+          { saldo_atual: (saldoOrigem - valorTransacao).toFixed(2) },
+          { where: { ID_Conta: contas[0].ID_Conta }, transaction: t }
+        );
+
+        // Atualizar a conta de destino
+        await ContaBancaria.update(
+          { saldo_atual: (parseFloat(contaDestino.saldo_atual) + valorTransacao).toFixed(2) },
+          { where: { ID_Conta: contas[1].ID_Conta }, transaction: t }
+        );
+
+        // Criar a transação no banco de dados
+        await Transacao.create({
+          ID_Conta: contaOrigem.ID_Conta,
+          tipo: tipoTransacao, // Depósito ou Gasto
+          valor: valorTransacao,
+          descricao: `Transação de ${tipoTransacao} entre ${usuarioOrigem} e ${usuarioDestino}`,
+          forma_pagamento: formaPagamento, // Forma de pagamento
+          data_transacao: new Date(),
+          transaction: t,
+        });
+
+        console.log(`Saldo atualizado: Origem (${saldoOrigem}), Destino (${contaDestino.saldo_atual})`);
+      });
+
+      console.log('Transação realizada com sucesso');
+      return; // Transação bem-sucedida, sai da função
+    } catch (error) {
+      if (error.code === 'ER_LOCK_WAIT_TIMEOUT' || error.code === 'ER_LOCK_DEADLOCK') {
+        retries++;
+        console.log(`Deadlock ou timeout detectado, tentando novamente... (Tentativa ${retries})`);
+        if (retries < MAX_RETRIES) {
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));  // Atraso entre tentativas
+        } else {
+          throw new Error('Máximo de tentativas de transação atingido');
+        }
+      } else {
+        throw error;  // Se for outro erro, não tenta novamente
+      }
+    }
+  }
+};
+
+// Rota para aplicar a transação
+// Rota para realizar a transação
 app.post('/transacao/realizar', async (req, res) => {
-  const { usuarioOrigem, usuarioDestino, valor } = req.body;
+  const { usuarioOrigem, usuarioDestino, valor, tipoTransacao, formaPagamento } = req.body;
 
-  console.log('Dados recebidos para transação:', { usuarioOrigem, usuarioDestino, valor });
+  console.log('Dados recebidos para transação:', { usuarioOrigem, usuarioDestino, valor, tipoTransacao, formaPagamento });
 
-  if (!usuarioOrigem || !usuarioDestino || !valor) {
+  if (!usuarioOrigem || !usuarioDestino || !valor || !tipoTransacao || !formaPagamento) {
     return res.status(400).send('Dados inválidos ou ausentes');
   }
 
@@ -73,45 +147,11 @@ app.post('/transacao/realizar', async (req, res) => {
   }
 
   try {
-    // Iniciar uma transação no Sequelize
-    await sequelize.transaction(async (t) => {
-      // Buscar contas de origem e destino
-      const contaOrigem = await ContaBancaria.findOne({ where: { ID_Usuario: usuarioOrigem }, transaction: t });
-      const contaDestino = await ContaBancaria.findOne({ where: { ID_Usuario: usuarioDestino }, transaction: t });
+    // Função que tenta realizar a transação
+    await realizarTransacao(usuarioOrigem, usuarioDestino, valorTransacao, tipoTransacao, formaPagamento);
 
-      if (!contaOrigem || !contaDestino) {
-        throw new Error('Conta de origem ou destino não encontrada');
-      }
-
-      // Converter saldo para números
-      const saldoOrigem = parseFloat(contaOrigem.saldo_atual);
-      const saldoDestino = parseFloat(contaDestino.saldo_atual);
-
-      // Verificar saldo suficiente na conta de origem
-      if (saldoOrigem < valorTransacao) {
-        throw new Error('Saldo insuficiente para realizar a transferência');
-      }
-
-      // Atualizar os saldos usando `toFixed` para precisão decimal
-      const novoSaldoOrigem = parseFloat((saldoOrigem - valorTransacao).toFixed(2));
-      const novoSaldoDestino = parseFloat((saldoDestino + valorTransacao).toFixed(2));
-
-      // Atualizar os valores no banco de dados
-      await ContaBancaria.update(
-        { saldo_atual: novoSaldoOrigem },
-        { where: { ID_Usuario: usuarioOrigem }, transaction: t }
-      );
-
-      await ContaBancaria.update(
-        { saldo_atual: novoSaldoDestino },
-        { where: { ID_Usuario: usuarioDestino }, transaction: t }
-      );
-
-      console.log(`Saldo atualizado: Origem (${novoSaldoOrigem}), Destino (${novoSaldoDestino})`);
-    });
-
-    console.log('Transferência realizada com sucesso');
-    res.redirect('/usuario');
+    console.log('Transação realizada com sucesso');
+    res.redirect('/relatorio'); // Redireciona para o relatório
   } catch (error) {
     console.error('Erro ao realizar transação:', error.message);
     res.status(500).send(`Erro ao realizar a transação: ${error.message}`);
@@ -242,12 +282,18 @@ app.post('/cadastroUsuario', async (req, res) => {
 
 app.get('/relatorio', async (req, res) => {
   try {
-    const usuario = await Usuario.findOne({ where: { ID_Usuario: 1 } }); // Ajuste conforme necessário
-    const transacoes = await Transacao.findAll({ where: { ID_Usuario: usuario.ID_Usuario } });
+    const usuario = await Usuario.findOne({ where: { ID_Usuario: 1 } });
+    if (!usuario) return res.status(404).send('Usuário não encontrado');
 
-    // Cálculos
-    const totalSaldo = transacoes.reduce((acc, transacao) => acc + transacao.valor, 0);
+    const contas = await ContaBancaria.findAll({ where: { ID_Usuario: usuario.ID_Usuario } });
+    const contasIds = contas.map(conta => conta.ID_Conta);
+
+    const transacoes = await Transacao.findAll({ where: { ID_Conta: contasIds } });
+
+    const totalSaldo = contas.reduce((acc, conta) => acc + conta.saldo_atual, 0);
     const totalTransacoes = transacoes.length;
+
+    // Calcular o total de depósitos e gastos
     const totalDepositos = transacoes
       .filter(transacao => transacao.tipo === 'deposito')
       .reduce((acc, transacao) => acc + transacao.valor, 0);
@@ -268,7 +314,6 @@ app.get('/relatorio', async (req, res) => {
     res.status(500).send('Erro ao gerar relatório');
   }
 });
-
 
 
 // Rota GET para renderizar a página de categorias

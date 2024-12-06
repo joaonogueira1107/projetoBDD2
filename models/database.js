@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 // Criação da instância do Sequelize com as configurações do banco
-const sequelize = new Sequelize('gestaofinanceira', 'root', 'admin', {
+const sequelize = new Sequelize('projetobdd', 'root', 'aluno123', {
   host: 'localhost', // Pode ser '127.0.0.1' ou o IP do servidor do banco
   dialect: 'mysql',  // Dialeto, neste caso, MySQL
   logging: false,    // Opcional: Desativa os logs de queries no console

@@ -41,6 +41,23 @@
         <input type="number" name="valor" id="valor" required step="0.01">
       </div>
 
+      <div>
+        <label for="tipoTransacao">Tipo de Transação:</label>
+        <select name="tipoTransacao" id="tipoTransacao" required>
+          <option value="deposito">Depósito</option>
+          <option value="gasto">Gasto</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="formaPagamento">Forma de Pagamento:</label>
+        <select name="formaPagamento" id="formaPagamento" required>
+          <option value="cartao_credito">Cartão de Crédito</option>
+          <option value="transferencia_bancaria">Transferência Bancária</option>
+          <option value="boleto">Boleto</option>
+        </select>
+      </div>
+
       <button type="submit">Realizar Transação</button>
     </form>
   </main>

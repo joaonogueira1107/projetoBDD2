@@ -18,7 +18,7 @@ const Transacao = sequelize.define('Transacao', {
         type: DataTypes.INTEGER,
         references: {
             model: 'categoria',
-            key: 'ID_Categoria'
+            key: 'ID_Categoria',
         },
     },
     valor: {
@@ -27,12 +27,20 @@ const Transacao = sequelize.define('Transacao', {
     descricao: {
         type: DataTypes.STRING,
     },
+    tipo: {
+        type: DataTypes.ENUM('deposito', 'gasto'),
+        allowNull: false,
+    },
     data_transacao: {
         type: DataTypes.DATE,
     },
+    forma_pagamento: {  // Novo campo
+        type: DataTypes.STRING,
+        allowNull: false,  // Se for obrigatório
+    },
 }, {
     tableName: 'transacao',
-    timestamps: false
+    timestamps: false,
 });
 
 module.exports = Transacao;
